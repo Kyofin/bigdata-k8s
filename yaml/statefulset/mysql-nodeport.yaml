@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+spec:
+  replicas: 3
+  serviceName: mysql
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:5.7
+          # IfNotPresent 仅本地没有镜像时才远程拉，Always 永远都是从远程拉，Never 永远只用本地镜像，本地没有则报错
+          imagePullPolicy: IfNotPresent
+          env: #指定容器中的环境变量
+            - name: MYSQL_ROOT_PASSWORD #变量的名字
+              value: "eWJmP7yvpccHCtmVb61Gxl2XLzIrRgmT" #变量的值
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  selector:
+    app: mysql
+  type: NodePort
+  # HeadLess
+  # clusterIP: None
+  ports:
+    - port: 3306
+      targetPort: 3306
+      nodePort: 31000
+
